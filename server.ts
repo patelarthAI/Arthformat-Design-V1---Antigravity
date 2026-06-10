@@ -11,13 +11,13 @@ import fs from "fs";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-import { db } from "./backend/firebase";
+import { db } from "./server/firebase";
 import { 
   extractResumeDataBackend, 
   analyzeGrammarBackend, 
   checkSpellingBackend, 
   getUsageStatsBackend 
-} from "./backend/gemini";
+} from "./server/gemini";
 
 const app = express();
 const PORT = 3000;
