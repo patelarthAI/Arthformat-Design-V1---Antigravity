@@ -21,15 +21,31 @@ const SYSTEM_SECRET = 'SERVER_SECRET_ee62ff41-5153-437f-b485-66227c47d53d';
 // Load config safely of the applet
 let firebaseConfig: any = {};
 try {
-  const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
-  if (fs.existsSync(configPath)) {
-    firebaseConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log("[Firebase Server] Loaded Firebase Applet Config with Project:", firebaseConfig.projectId);
-  } else {
-    console.warn("[Firebase Server] firebase-applet-config.json not found!");
-  }
+  // Try require first to allow bundlers (like Vercel NFT/esbuild) to inline it
+  firebaseConfig = require('../firebase-applet-config.json');
+  console.log("[Firebase Server] Loaded Firebase Applet Config with Project:", firebaseConfig.projectId);
 } catch (e) {
-  console.error("[Firebase Server] Failed to load firebase-applet-config.json:", e);
+  try {
+    const pathsToTry = [
+      path.join(process.cwd(), 'firebase-applet-config.json'),
+      path.join(__dirname, '..', 'firebase-applet-config.json'),
+      path.join(__dirname, 'firebase-applet-config.json')
+    ];
+    let found = false;
+    for (const p of pathsToTry) {
+      if (fs.existsSync(p)) {
+        firebaseConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
+        console.log("[Firebase Server] Loaded Firebase Applet Config from path:", p);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      console.warn("[Firebase Server] firebase-applet-config.json not found in any path!");
+    }
+  } catch (fsError: any) {
+    console.error("[Firebase Server] Failed to load firebase-applet-config.json via fs:", fsError.message);
+  }
 }
 
 // Initialize Web Firebase App on the Server

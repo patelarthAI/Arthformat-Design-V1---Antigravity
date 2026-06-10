@@ -94,7 +94,9 @@ const timingSafeCompare = (a: string, b: string): boolean => {
 };
 
 // In-memory fallback persisted to JSON file for high-precision local sandbox stability
-const DB_FILE = path.join(process.cwd(), 'resumes_db.json');
+const DB_FILE = process.env.VERCEL 
+  ? '/tmp/resumes_db.json' 
+  : path.join(process.cwd(), 'resumes_db.json');
 let inMemoryResumes: any[] = [];
 try {
   if (fs.existsSync(DB_FILE)) {
@@ -129,9 +131,17 @@ const saveInMemoryResumes = async () => {
 
 // Helper to check if Firebase is actually configured with a Service Account or Applet Config (ADC)
 const isFirebaseConfigured = () => {
-  const saPath = path.join(process.cwd(), 'firebase-service-account.json');
-  const appletConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
-  return fs.existsSync(saPath) || !!process.env.FIREBASE_SERVICE_ACCOUNT || fs.existsSync(appletConfigPath);
+  const saPaths = [
+    path.join(process.cwd(), 'firebase-service-account.json'),
+    path.join(__dirname, '..', 'firebase-service-account.json')
+  ];
+  const appletConfigPaths = [
+    path.join(process.cwd(), 'firebase-applet-config.json'),
+    path.join(__dirname, '..', 'firebase-applet-config.json')
+  ];
+  const hasSa = saPaths.some(p => fs.existsSync(p)) || !!process.env.FIREBASE_SERVICE_ACCOUNT;
+  const hasApplet = appletConfigPaths.some(p => fs.existsSync(p));
+  return hasSa || hasApplet;
 };
 
 // Background task to clean up old pending resumes
