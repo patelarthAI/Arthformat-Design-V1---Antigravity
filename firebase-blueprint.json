@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "resume": {
+      "title": "Resume",
+      "description": "A resume submitted for AI formatting and status tracking.",
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "object",
+          "description": "A JSON object containing resume data like parsed content, original fileName, and reject flags."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved"],
+          "description": "Status of the resume submission."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "Reference UID for the user who uploaded the resume."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO time when document was uploaded or created."
+        }
+      },
+      "required": ["content", "status", "created_at"]
+    },
+    "activityLog": {
+      "title": "ActivityLog",
+      "description": "Tracks administrative and user activities over submissions.",
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "Type of action performed, e.g. resume_submitted, resume_approved, etc."
+        },
+        "details": {
+          "type": "object",
+          "description": "Extra details related specifically to this action."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "UID of the user associated with this activity log if any."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp for when this activity happened."
+        }
+      },
+      "required": ["action", "details", "created_at"]
+    }
+  },
+  "firestore": {
+    "/resumes/{resumeId}": {
+      "schema": "resume",
+      "description": "Submissions collection for formatting results and workflow pipeline."
+    },
+    "/activity_logs/{logId}": {
+      "schema": "activityLog",
+      "description": "Audit trails for actions executed by users or background tasks."
+    }
+  }
+}
