@@ -9,13 +9,22 @@ import fs from "fs";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-import { db, isFirebaseConfigured } from "../server/firebase";
-import { 
-  extractResumeDataBackend, 
-  analyzeGrammarBackend, 
-  checkSpellingBackend, 
-  getUsageStatsBackend 
-} from "../server/gemini";
+// import { db, isFirebaseConfigured } from "../server/firebase";
+// import { 
+//   extractResumeDataBackend, 
+//   analyzeGrammarBackend, 
+//   checkSpellingBackend, 
+//   getUsageStatsBackend 
+// } from "../server/gemini";
+
+// Stub definitions to bypass compilation checks and verify if imports crash Vercel
+const db: any = null;
+const isFirebaseConfigured = () => false;
+const extractResumeDataBackend = async (...args: any[]) => { return {}; };
+const analyzeGrammarBackend = async (...args: any[]) => { return []; };
+const checkSpellingBackend = async (...args: any[]) => { return {}; };
+const getUsageStatsBackend = (...args: any[]) => { return {}; };
+
 
 const app = express();
 const PORT = 3000;
