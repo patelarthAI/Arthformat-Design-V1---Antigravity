@@ -11,7 +11,7 @@ import fs from "fs";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-import { db } from "../server/firebase";
+import { db, isFirebaseConfigured } from "../server/firebase";
 import { 
   extractResumeDataBackend, 
   analyzeGrammarBackend, 
@@ -129,20 +129,6 @@ const saveInMemoryResumes = async () => {
   }
 };
 
-// Helper to check if Firebase is actually configured with a Service Account or Applet Config (ADC)
-const isFirebaseConfigured = () => {
-  const saPaths = [
-    path.join(process.cwd(), 'firebase-service-account.json'),
-    path.join(__dirname, '..', 'firebase-service-account.json')
-  ];
-  const appletConfigPaths = [
-    path.join(process.cwd(), 'firebase-applet-config.json'),
-    path.join(__dirname, '..', 'firebase-applet-config.json')
-  ];
-  const hasSa = saPaths.some(p => fs.existsSync(p)) || !!process.env.FIREBASE_SERVICE_ACCOUNT;
-  const hasApplet = appletConfigPaths.some(p => fs.existsSync(p));
-  return hasSa || hasApplet;
-};
 
 // Background task to clean up old pending resumes
 const autoRejectOldResumes = async () => {

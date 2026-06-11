@@ -18,35 +18,11 @@ import path from 'path';
 // Define the core server secret token used for secure Attribute-Based Access Control (ABAC) in security rules
 const SYSTEM_SECRET = 'SERVER_SECRET_ee62ff41-5153-437f-b485-66227c47d53d';
 
-// Load config safely of the applet
-let firebaseConfig: any = {};
-try {
-  // Try require first to allow bundlers (like Vercel NFT/esbuild) to inline it
-  firebaseConfig = require('../firebase-applet-config.json');
-  console.log("[Firebase Server] Loaded Firebase Applet Config with Project:", firebaseConfig.projectId);
-} catch (e) {
-  try {
-    const pathsToTry = [
-      path.join(process.cwd(), 'firebase-applet-config.json'),
-      path.join(__dirname, '..', 'firebase-applet-config.json'),
-      path.join(__dirname, 'firebase-applet-config.json')
-    ];
-    let found = false;
-    for (const p of pathsToTry) {
-      if (fs.existsSync(p)) {
-        firebaseConfig = JSON.parse(fs.readFileSync(p, 'utf8'));
-        console.log("[Firebase Server] Loaded Firebase Applet Config from path:", p);
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      console.warn("[Firebase Server] firebase-applet-config.json not found in any path!");
-    }
-  } catch (fsError: any) {
-    console.error("[Firebase Server] Failed to load firebase-applet-config.json via fs:", fsError.message);
-  }
-}
+import firebaseConfig from '../firebase-applet-config.json';
+
+export const isFirebaseConfigured = () => {
+  return !!(firebaseConfig && firebaseConfig.projectId);
+};
 
 // Initialize Web Firebase App on the Server
 let app;
