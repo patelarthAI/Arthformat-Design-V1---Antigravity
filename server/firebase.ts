@@ -25,16 +25,20 @@ export const isFirebaseConfigured = () => {
 };
 
 // Initialize Web Firebase App on the Server
-let app;
-if (getApps().length === 0) {
-  app = initializeApp(firebaseConfig);
-  console.log("[Firebase Server] Initialized Web client SDK instance on Node server backend.");
-} else {
-  app = getApps()[0];
+let app: any;
+let firestoreInstance: any;
+try {
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+    console.log("[Firebase Server] Initialized Web client SDK instance on Node server backend.");
+  } else {
+    app = getApps()[0];
+  }
+  firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  console.log(`[Firebase Server] Initialized Firestore Instance for DB: ${firebaseConfig.firestoreDatabaseId || '(default)'}`);
+} catch (e: any) {
+  console.error("[Firebase Server] Failed to initialize Firebase/Firestore:", e.message);
 }
-
-const firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-console.log(`[Firebase Server] Initialized Firestore Instance for DB: ${firebaseConfig.firestoreDatabaseId || '(default)'}`);
 
 // Shim to mimic firebase-admin API using the standard client SDK
 class DocRef {
@@ -51,6 +55,7 @@ class DocRef {
   }
 
   async set(data: any) {
+    if (!firestoreInstance) throw new Error("Firestore is not initialized");
     const dRef = doc(firestoreInstance, this.colName, this.docId);
     // Automatically inject system_secret to align with secure Firestore rules
     await setDoc(dRef, { 
@@ -60,6 +65,7 @@ class DocRef {
   }
 
   async update(data: any) {
+    if (!firestoreInstance) throw new Error("Firestore is not initialized");
     const dRef = doc(firestoreInstance, this.colName, this.docId);
     // Explicitly update while preserving or enforcing the secret key validation
     await updateDoc(dRef, { 
@@ -69,6 +75,7 @@ class DocRef {
   }
 
   async get() {
+    if (!firestoreInstance) throw new Error("Firestore is not initialized");
     const dRef = doc(firestoreInstance, this.colName, this.docId);
     const snap = await getDoc(dRef);
     return {
@@ -79,6 +86,7 @@ class DocRef {
   }
 
   async delete() {
+    if (!firestoreInstance) throw new Error("Firestore is not initialized");
     const dRef = doc(firestoreInstance, this.colName, this.docId);
     await deleteDoc(dRef);
   }
@@ -102,6 +110,7 @@ class QueryBuilder {
   }
 
   async get() {
+    if (!firestoreInstance) throw new Error("Firestore is not initialized");
     const colRef = collection(firestoreInstance, this.colName);
     // Ensure the system_secret validation is passed by explicitly appending the filter
     const securityQuery = query(colRef, where('system_secret', '==', SYSTEM_SECRET), ...this.conditions);
