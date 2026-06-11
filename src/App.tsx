@@ -210,16 +210,18 @@ const App: React.FC = () => {
 
         if (!response.ok) {
           let errorMessage = "Failed to extract text from .doc file.";
+          let responseText = "";
           try {
-            const errorData = await response.json();
+            responseText = await response.text();
+            const errorData = JSON.parse(responseText);
             errorMessage = errorData.error || errorMessage;
-          } catch (e) {
+          } catch (e: any) {
             if (response.status === 500) {
-              errorMessage = `Server error (500) during .doc extraction. This format can be tricky; please try saving as .docx or .pdf for better results.`;
+              errorMessage = `Server error (500) during .doc extraction: ${responseText || e.message}`;
             } else if (response.status === 413) {
               errorMessage = `File is too large for the server to process. Please convert it to .docx or .pdf and try again.`;
             } else {
-              errorMessage = `Server error (${response.status}). Please try again later.`;
+              errorMessage = `Server error (${response.status}): ${responseText || e.message}`;
             }
           }
           throw new Error(errorMessage);
@@ -350,16 +352,18 @@ const App: React.FC = () => {
 
       if (!response.ok) {
         let errorMessage = 'Failed to submit resume';
+        let responseText = "";
         try {
-          const errorData = await response.json();
+          responseText = await response.text();
+          const errorData = JSON.parse(responseText);
           errorMessage = errorData.error || errorMessage;
-        } catch (e) {
+        } catch (e: any) {
           if (response.status === 500) {
-            errorMessage = `Server processing error (500). This might be due to a large file or database issue. Please try a smaller file or try again in a few minutes.`;
+            errorMessage = `Server processing error (500): ${responseText || e.message}`;
           } else if (response.status === 413) {
             errorMessage = `File is too large for the server to process. Please try a smaller file.`;
           } else {
-            errorMessage = `Server error (${response.status}). Please try again later.`;
+            errorMessage = `Server error (${response.status}): ${responseText || e.message}`;
           }
         }
         throw new Error(errorMessage);
