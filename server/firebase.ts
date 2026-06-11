@@ -18,7 +18,7 @@ import path from 'path';
 // Define the core server secret token used for secure Attribute-Based Access Control (ABAC) in security rules
 const SYSTEM_SECRET = 'SERVER_SECRET_ee62ff41-5153-437f-b485-66227c47d53d';
 
-import firebaseConfig from '../firebase-applet-config.json';
+import firebaseConfig from '../firebase-applet-config';
 
 export const isFirebaseConfigured = () => {
   return !!(firebaseConfig && firebaseConfig.projectId);

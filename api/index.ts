@@ -2,9 +2,7 @@ import 'dotenv/config';
 import express from "express";
 import crypto from "crypto";
 console.log("Server starting...");
-import WordExtractor from "word-extractor";
-// Fallback for some environments
-const Extractor = (WordExtractor as any).default || WordExtractor;
+
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -415,6 +413,8 @@ app.post("/api/extract-doc", async (req, res) => {
     }
 
     const buffer = Buffer.from(fileBase64, 'base64');
+    const WordExtractor = await import("word-extractor");
+    const Extractor = (WordExtractor as any).default || WordExtractor;
     const extractor = new Extractor();
     const extracted = await extractor.extract(buffer);
     const text = extracted.getBody();
