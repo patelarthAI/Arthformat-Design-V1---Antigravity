@@ -25,11 +25,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       if (!response.ok) {
         let errorMessage = 'Invalid password';
+        let responseText = "";
         try {
-          const data = await response.json();
+          responseText = await response.text();
+          const data = JSON.parse(responseText);
           errorMessage = data.error || errorMessage;
-        } catch (e) {
-          errorMessage = `Server error (${response.status}). Please try again later.`;
+        } catch (e: any) {
+          errorMessage = `Server error (${response.status}): ${responseText || e.message}`;
         }
         throw new Error(errorMessage);
       }
