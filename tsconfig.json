@@ -26,5 +26,5 @@
     "esModuleInterop": true,
     "noEmit": true
   },
-  "include": ["src", "server.ts", "backend", "vite.config.ts"]
+  "include": ["src", "server.ts", "backend", "vite.config.ts", "api"]
 }
